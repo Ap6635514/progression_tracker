@@ -1,300 +1,403 @@
 
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-.tracker {
-  padding: 1rem;
-  background: #0a0e1a;
-  border-radius: 16px;
-  font-family: var(--font-sans);
-  color: #e2e8f0;
-  position: relative;
-  overflow: hidden;
-}
-.stars-bg {
-  position: absolute; inset: 0; pointer-events: none; z-index: 0;
-}
+.app { background: #0a0e1a; border-radius: 16px; font-family: var(--font-sans); color: #e2e8f0; position: relative; overflow: hidden; padding: 1rem; }
+.stars-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
 .star { position: absolute; border-radius: 50%; background: #fff; }
-.content { position: relative; z-index: 1; }
-.week-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
-.week-label { font-size: 15px; font-weight: 500; color: #e2e8f0; letter-spacing: 0.02em; }
-.week-btn { background: rgba(255,255,255,0.07); border: 0.5px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 14px; font-size: 13px; cursor: pointer; color: #94a3b8; }
-.week-btn:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
-.summary-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.25rem; }
-.metric-card { background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; text-align: center; }
-.metric-label { font-size: 11px; color: #64748b; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
-.metric-val { font-size: 22px; font-weight: 500; color: #e2e8f0; }
+.wrap { position: relative; z-index: 1; }
+.nav { display: flex; gap: 6px; margin-bottom: 1.25rem; }
+.nav-btn { flex: 1; padding: 8px; border-radius: 10px; border: 0.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); font-size: 13px; font-weight: 500; cursor: pointer; color: #64748b; text-align: center; transition: all 0.15s; }
+.nav-btn.active { background: rgba(255,255,255,0.1); color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
+.summary-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-bottom: 1.25rem; }
+.metric-card { background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; text-align: center; }
+.metric-label { font-size: 10px; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.metric-val { font-size: 18px; font-weight: 500; color: #e2e8f0; }
 .streak-row { display: flex; gap: 5px; margin-bottom: 1.25rem; align-items: center; flex-wrap: wrap; }
-.streak-dot { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 10px; color: #475569; cursor: pointer; flex-shrink: 0; }
-.streak-label { font-size: 12px; color: #64748b; margin-left: 4px; }
-.day-tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
-.day-tab { padding: 5px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; border: 0.5px solid rgba(255,255,255,0.12); color: #64748b; background: rgba(255,255,255,0.04); }
-.day-tab:hover { background: rgba(255,255,255,0.08); color: #94a3b8; }
+.streak-dot { width: 26px; height: 26px; border-radius: 50%; border: 0.5px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; font-size: 9px; color: #475569; cursor: pointer; flex-shrink: 0; }
+.streak-label { font-size: 11px; color: #475569; margin-left: 4px; }
+.day-tabs { display: flex; gap: 5px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.day-tab { padding: 5px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; border: 0.5px solid rgba(255,255,255,0.1); color: #64748b; background: rgba(255,255,255,0.03); }
+.day-tab:hover { background: rgba(255,255,255,0.07); color: #94a3b8; }
 .day-tab.active { background: #1e3a5f; color: #93c5fd; border-color: #2563eb; }
-.day-tab.mock-day { border-color: rgba(216,90,48,0.5); color: #fb923c; }
-.day-tab.active.mock-day { background: #3b1a0a; color: #fb923c; border-color: #ea580c; }
-.systems { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.25rem; }
-.sys-card { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1rem 1.25rem; }
-.sys-card.mock-card { border-color: rgba(234,88,12,0.4); }
-.sys-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.sys-title { font-size: 13px; font-weight: 500; color: #cbd5e1; }
-.sys-pct { font-size: 13px; font-weight: 500; }
-.progress-bar-bg { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-bottom: 12px; }
-.progress-bar-fill { height: 4px; border-radius: 2px; transition: width 0.35s; }
-.tasks { display: flex; flex-direction: column; gap: 9px; }
-.task-row { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 2px 0; }
-.task-check { width: 17px; height: 17px; border-radius: 4px; border: 1.5px solid rgba(255,255,255,0.2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.day-tab.mock-day { border-color: rgba(234,88,12,0.4); color: #fb923c; }
+.day-tab.active.mock-day { background: #3b1a0a; border-color: #ea580c; }
+.week-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.week-label { font-size: 14px; font-weight: 500; color: #e2e8f0; }
+.week-btn { background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 5px 12px; font-size: 12px; cursor: pointer; color: #94a3b8; }
+.week-btn:hover { background: rgba(255,255,255,0.1); }
+.sys-card { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 10px; }
+.sys-card.mock-card { border-color: rgba(234,88,12,0.35); }
+.sys-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.sys-title { font-size: 12px; font-weight: 500; color: #94a3b8; }
+.sys-pct { font-size: 12px; font-weight: 500; }
+.prog-bg { height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; margin-bottom: 10px; }
+.prog-fill { height: 4px; border-radius: 2px; transition: width 0.3s; }
+.tasks { display: flex; flex-direction: column; gap: 7px; }
+.task-row { display: flex; align-items: center; gap: 9px; cursor: pointer; }
+.task-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid rgba(255,255,255,0.18); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 .task-check.done { border-color: transparent; }
 .task-check svg { display: none; }
 .task-check.done svg { display: block; }
-.task-text { font-size: 13px; color: #94a3b8; line-height: 1.4; }
-.task-text.done { text-decoration: line-through; color: #475569; }
-.task-optional { font-size: 10px; color: #475569; margin-left: 4px; }
-.reflect-section { margin-top: 0.5rem; }
-.section-label { font-size: 10px; font-weight: 500; color: #475569; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
-.reflect-area { width: 100%; border: 0.5px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; font-size: 13px; color: #94a3b8; background: rgba(255,255,255,0.04); resize: none; font-family: var(--font-sans); min-height: 60px; }
-.reflect-area::placeholder { color: #334155; }
-.reflect-area:focus { outline: none; border-color: rgba(99,102,241,0.5); }
-.save-btn { margin-top: 8px; padding: 7px 18px; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); font-size: 13px; cursor: pointer; color: #64748b; }
-.save-btn:hover { background: rgba(255,255,255,0.09); color: #94a3b8; }
+.task-text { font-size: 12px; color: #94a3b8; line-height: 1.4; }
+.task-text.done { text-decoration: line-through; color: #334155; }
+.res-link { font-size: 10px; padding: 2px 7px; border-radius: 6px; border: 0.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #475569; cursor: pointer; white-space: nowrap; flex-shrink: 0; margin-left: auto; }
+.res-link:hover { color: #94a3b8; background: rgba(255,255,255,0.08); }
+.reflect-area { width: 100%; border: 0.5px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 9px; font-size: 12px; color: #94a3b8; background: rgba(255,255,255,0.03); resize: none; font-family: var(--font-sans); min-height: 55px; margin-top: 10px; }
+.reflect-area::placeholder { color: #1e293b; }
+.reflect-area:focus { outline: none; border-color: rgba(99,102,241,0.4); }
+.save-btn { margin-top: 6px; padding: 6px 14px; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); font-size: 12px; cursor: pointer; color: #475569; }
+.save-btn:hover { color: #94a3b8; background: rgba(255,255,255,0.08); }
+.sec-label { font-size: 10px; font-weight: 500; color: #334155; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.filter-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 1rem; }
+.filter-btn { padding: 4px 11px; border-radius: 20px; font-size: 11px; cursor: pointer; border: 0.5px solid rgba(255,255,255,0.1); color: #475569; background: rgba(255,255,255,0.03); }
+.filter-btn:hover { color: #94a3b8; }
+.filter-btn.active { color: #0a0e1a; border-color: transparent; }
+.subj-section { margin-bottom: 1.25rem; }
+.subj-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.subj-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.subj-label { font-size: 11px; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
+.subj-count { font-size: 10px; color: #334155; }
+.res-card { background: rgba(255,255,255,0.03); border: 0.5px solid rgba(255,255,255,0.07); border-radius: 9px; padding: 9px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 5px; transition: background 0.12s; }
+.res-card:hover { background: rgba(255,255,255,0.06); }
+.res-card.active-res { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); }
+.res-card.done-res { opacity: 0.45; }
+.res-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.res-name { font-size: 12px; font-weight: 500; color: #cbd5e1; flex: 1; min-width: 0; }
+.res-note { font-size: 10px; color: #334155; margin-top: 1px; }
+.res-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+.badge { font-size: 10px; padding: 2px 7px; border-radius: 8px; font-weight: 500; }
+.badge-book { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.badge-video { background: rgba(167,139,250,0.12); color: #a78bfa; }
+.badge-app { background: rgba(52,211,153,0.12); color: #34d399; }
+.status-btn { font-size: 10px; padding: 2px 7px; border-radius: 5px; border: 0.5px solid rgba(255,255,255,0.1); background: transparent; color: #334155; cursor: pointer; }
+.status-btn.is-active { border-color: #22c55e; color: #22c55e; }
+.status-btn.is-done { border-color: #334155; color: #334155; }
+.pstar { color: #fbbf24; font-size: 11px; }
+.linked-badge { font-size: 10px; background: rgba(251,191,36,0.12); color: #fbbf24; border-radius: 5px; padding: 1px 5px; }
 </style>
 
-<div class="tracker">
+<div class="app">
 <div class="stars-bg" id="starsBg"></div>
-<div class="content">
+<div class="wrap">
 
-<div class="week-nav">
-  <button class="week-btn" onclick="changeWeek(-1)">← prev</button>
-  <span class="week-label" id="weekLabel">Week 1</span>
-  <button class="week-btn" onclick="changeWeek(1)">next →</button>
+<div class="nav">
+  <button class="nav-btn active" id="navTracker" onclick="switchTab('tracker')">Daily tracker</button>
+  <button class="nav-btn" id="navLibrary" onclick="switchTab('library')">Resource library</button>
 </div>
-
-<div class="streak-row" id="streakRow"></div>
 
 <div class="summary-row">
-  <div class="metric-card">
-    <div class="metric-label">Tasks done</div>
-    <div class="metric-val" id="metTasksDone">0/0</div>
-  </div>
-  <div class="metric-card">
-    <div class="metric-label">Day streak</div>
-    <div class="metric-val" id="metStreak">0</div>
-  </div>
-  <div class="metric-card">
-    <div class="metric-label">Overall</div>
-    <div class="metric-val" id="metOverall">0%</div>
-  </div>
+  <div class="metric-card"><div class="metric-label">Tasks today</div><div class="metric-val" id="mToday">0/0</div></div>
+  <div class="metric-card"><div class="metric-label">Week done</div><div class="metric-val" id="mWeek">0%</div></div>
+  <div class="metric-card"><div class="metric-label">Streak</div><div class="metric-val" id="mStreak">0</div></div>
+  <div class="metric-card"><div class="metric-label">Resources</div><div class="metric-val" id="mRes">0 active</div></div>
 </div>
 
-<div class="day-tabs" id="dayTabs"></div>
-<div class="systems" id="systemsContainer"></div>
+<div id="tabTracker">
+  <div class="week-nav">
+    <button class="week-btn" onclick="changeWeek(-1)">← prev</button>
+    <span class="week-label" id="weekLabel">Week 1</span>
+    <button class="week-btn" onclick="changeWeek(1)">next →</button>
+  </div>
+  <div class="streak-row" id="streakRow"></div>
+  <div class="day-tabs" id="dayTabs"></div>
+  <div id="systemsContainer"></div>
+  <div class="sec-label" style="margin-top:10px;">Reflection</div>
+  <textarea class="reflect-area" id="reflectArea" placeholder="What went well? What was hard?"></textarea>
+  <button class="save-btn" onclick="saveReflect()">Save note</button>
+</div>
 
-<div class="reflect-section">
-  <div class="section-label">Reflection for this day</div>
-  <textarea class="reflect-area" id="reflectArea" placeholder="What went well? What was hard? Any mistakes to fix?"></textarea>
-  <button class="save-btn" onclick="saveReflection()">Save note</button>
+<div id="tabLibrary" style="display:none;">
+  <div class="filter-row" id="filterRow"></div>
+  <div id="libraryContent"></div>
 </div>
 
 </div>
 </div>
 
 <script>
-const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const MOCK_DAYS = [2, 5];
+var DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var MOCK_DAYS=[2,5];
 
-const SYSTEMS = [
-  {
-    id: 'core', label: 'System 1 — Core (Maths + Physics)', color: '#60a5fa',
-    tasks: [
-      { id: 'math_morning', label: 'Maths — 1.5 hr morning deep work' },
-      { id: 'phys_morning', label: 'Physics — 1.5 hr morning deep work' },
-      { id: 'phys_num', label: 'Physics numericals / derivations — 1 hr' },
-      { id: 'math_prac', label: 'Maths practice — 45 min' },
+var SYSTEMS=[
+  { id:'core', label:'System 1 — Core (Maths + Physics)', color:'#60a5fa', resSubjects:['math','physics'],
+    tasks:[
+      {id:'math_morning',label:'Maths — 1.5 hr morning deep work'},
+      {id:'phys_morning',label:'Physics — 1.5 hr morning deep work'},
+      {id:'phys_num',label:'Physics numericals / derivations — 1 hr'},
+      {id:'math_prac',label:'Maths practice — 45 min'},
     ]
   },
-  {
-    id: 'global', label: 'System 2 — Global (IELTS + German)', color: '#34d399',
-    tasks: [
-      { id: 'ielts_listen', label: 'IELTS Listening — 20 min' },
-      { id: 'ielts_speak', label: 'IELTS Speaking — talk / record yourself' },
-      { id: 'ielts_write', label: 'IELTS Writing — 1 paragraph' },
-      { id: 'german', label: 'German — 30 min (10–15 words + 5 sentences)' },
+  { id:'global', label:'System 2 — Global (IELTS + German)', color:'#34d399', resSubjects:['ielts','german'],
+    tasks:[
+      {id:'ielts_listen',label:'IELTS Listening — 20 min'},
+      {id:'ielts_speak',label:'IELTS Speaking — record yourself'},
+      {id:'ielts_write',label:'IELTS Writing — 1 paragraph'},
+      {id:'german',label:'German — 30 min (10–15 words)'},
     ]
   },
-  {
-    id: 'skill', label: 'System 4 — Skill Stack (Python + ML)', color: '#fb923c',
-    tasks: [
-      { id: 'python', label: 'Python practice — 30 min' },
-      { id: 'ml_proj', label: 'Star Classifier / Binary Star project work' },
-      { id: 'astro_code', label: 'Astronomy coding (plots, simulations)', optional: true },
+  { id:'skill', label:'System 4 — Python + ML', color:'#f87171', resSubjects:['python'],
+    tasks:[
+      {id:'python',label:'Python practice — 30 min'},
+      {id:'ml_proj',label:'Star Classifier / Binary Star project work'},
+      {id:'astro_code',label:'Astronomy coding (plots, simulations)',optional:true},
     ]
   },
-  {
-    id: 'mind', label: 'System 3 — Mind (Psychology + Philosophy)', color: '#a78bfa',
-    tasks: [
-      { id: 'psych', label: 'Psychology / Philosophy — 30 min' },
-      { id: 'astro_read', label: 'Astronomy reading / video — 20 min', optional: true },
+  { id:'mind', label:'System 3 — Mind (Psychology + Philosophy)', color:'#a78bfa', resSubjects:['mind','astro'],
+    tasks:[
+      {id:'psych',label:'Psychology / Philosophy — 30 min'},
+      {id:'astro_read',label:'Astronomy reading / video — 20 min',optional:true},
     ]
   }
 ];
 
-const MOCK_TASKS = [
-  { id: 'mock_full', label: 'Full IELTS mock test (all 4 sections)' },
-  { id: 'mock_analyze', label: 'Analyze mistakes — note weak areas' },
-  { id: 'mock_reading', label: 'Extra Reading practice (your weakest skill)' },
+var MOCK_TASKS=[
+  {id:'mock_full',label:'Full IELTS mock test (all 4 sections)'},
+  {id:'mock_analyze',label:'Analyze mistakes — note weak areas'},
+  {id:'mock_reading',label:'Extra Reading practice (your weakest skill)'},
 ];
 
-const SUNDAY_TASKS = [
-  { id: 'sun_revise', label: 'Revise whole week' },
-  { id: 'sun_mixed', label: 'Solve mixed questions' },
-  { id: 'sun_docu', label: 'Watch 1 astronomy documentary' },
-  { id: 'sun_plan', label: 'Plan next week' },
-  { id: 'sun_check', label: 'Monthly check — harder numericals? English improving? German progressing?' },
+var SUNDAY_TASKS=[
+  {id:'sun_revise',label:'Revise whole week'},
+  {id:'sun_mixed',label:'Solve mixed questions'},
+  {id:'sun_docu',label:'Watch 1 astronomy documentary'},
+  {id:'sun_plan',label:'Plan next week'},
+  {id:'sun_check',label:'Monthly check — harder numericals? English improving?'},
 ];
 
-let state = {};
-let currentWeek = 1;
-let currentDay = 0;
+var SUBJECTS=[
+  {id:'math',label:'Mathematics',dot:'#60a5fa'},
+  {id:'physics',label:'Physics',dot:'#fb923c'},
+  {id:'astro',label:'Astronomy',dot:'#a78bfa'},
+  {id:'ielts',label:'IELTS',dot:'#34d399'},
+  {id:'german',label:'German',dot:'#fbbf24'},
+  {id:'mind',label:'Psychology + Philosophy',dot:'#f472b6'},
+  {id:'python',label:'Python + ML',dot:'#f87171'},
+];
 
-function stateKey(w,d,id){ return 'w'+w+'_d'+d+'_'+id; }
-function reflectKey(w,d){ return 'w'+w+'_d'+d+'_reflect'; }
-function getChecked(w,d,id){ return state[stateKey(w,d,id)]||false; }
-function setChecked(w,d,id,val){ state[stateKey(w,d,id)]=val; persist(); }
-function getReflect(w,d){ return state[reflectKey(w,d)]||''; }
-function setReflect(w,d,val){ state[reflectKey(w,d)]=val; persist(); }
-function persist(){ try{ localStorage.setItem('abhi_cosmic',''+JSON.stringify(state)); }catch(e){} }
-function load(){ try{ var s=localStorage.getItem('abhi_cosmic'); if(s) state=JSON.parse(s); }catch(e){} }
+var RESOURCES=[
+  {id:'r01',subject:'math',type:'book',priority:true,name:'NCERT Maths Class 11 & 12',note:"Your base — don't skip"},
+  {id:'r02',subject:'math',type:'book',priority:true,name:'RD Sharma Mathematics',note:'Build speed + confidence'},
+  {id:'r03',subject:'math',type:'book',priority:false,name:'IIT Maths by M.L. Khanna',note:'After basics — deep thinking'},
+  {id:'r04',subject:'math',type:'book',priority:false,name:'Calculus by James Stewart',note:'University level — best international'},
+  {id:'r05',subject:'math',type:'video',priority:true,name:'3Blue1Brown',note:'Makes maths beautiful — must watch'},
+  {id:'r06',subject:'math',type:'video',priority:false,name:'Khan Academy',note:'Clear explanations'},
+  {id:'r07',subject:'physics',type:'book',priority:true,name:'NCERT Physics Class 11 & 12',note:'Foundation — start here'},
+  {id:'r08',subject:'physics',type:'book',priority:true,name:'Concepts of Physics — H.C. Verma',note:'Best for understanding'},
+  {id:'r09',subject:'physics',type:'book',priority:false,name:'Halliday, Resnick & Walker',note:'Used worldwide — advanced'},
+  {id:'r10',subject:'physics',type:'video',priority:false,name:'Physics Wallah',note:'Visual learning'},
+  {id:'r11',subject:'physics',type:'video',priority:false,name:'MIT OpenCourseWare',note:'University level lectures'},
+  {id:'r12',subject:'astro',type:'book',priority:true,name:'Cosmos by Carl Sagan',note:'Builds passion — read this first'},
+  {id:'r13',subject:'astro',type:'book',priority:true,name:'Astrophysics for People in a Hurry',note:'Quick but powerful'},
+  {id:'r14',subject:'ielts',type:'book',priority:true,name:'Cambridge IELTS Series',note:'Most important — practice tests'},
+  {id:'r15',subject:'ielts',type:'video',priority:true,name:'IELTS Liz',note:'Top online resource'},
+  {id:'r16',subject:'ielts',type:'video',priority:false,name:'E2 IELTS',note:'Good for speaking + writing'},
+  {id:'r17',subject:'german',type:'book',priority:true,name:'Menschen A1',note:'Standard beginner textbook'},
+  {id:'r18',subject:'german',type:'app',priority:true,name:'Duolingo',note:'Daily habit — 10–15 words'},
+  {id:'r19',subject:'german',type:'app',priority:false,name:'Anki',note:'Flashcard system — spaced repetition'},
+  {id:'r20',subject:'mind',type:'book',priority:false,name:'Psychology by David G. Myers',note:'Core psychology concepts'},
+  {id:'r21',subject:'mind',type:'book',priority:false,name:"Sophie's World",note:'Philosophy made easy'},
+  {id:'r22',subject:'python',type:'book',priority:true,name:'Python Crash Course',note:'Best beginner Python book'},
+  {id:'r23',subject:'python',type:'video',priority:true,name:'freeCodeCamp',note:'Free full Python course'},
+];
 
-function getTasksForDay(day){
-  if(day===6) return SUNDAY_TASKS;
-  var base=SYSTEMS.flatMap(s=>s.tasks);
-  if(MOCK_DAYS.includes(day)) return [...base,...MOCK_TASKS];
-  return base;
+var state={};
+var currentWeek=1;
+var currentDay=0;
+var currentTab='tracker';
+var currentFilter='all';
+
+function load(){ try{ var s=localStorage.getItem('abhi_mc'); if(s) state=JSON.parse(s); }catch(e){} }
+function save(){ try{ localStorage.setItem('abhi_mc',JSON.stringify(state)); }catch(e){} }
+function tkey(w,d,id){ return 'w'+w+'_d'+d+'_'+id; }
+function rkey(w,d){ return 'w'+w+'_d'+d+'_ref'; }
+function getT(w,d,id){ return state[tkey(w,d,id)]||false; }
+function setT(w,d,id,v){ state[tkey(w,d,id)]=v; save(); }
+function getRef(w,d){ return state[rkey(w,d)]||''; }
+function setRef(w,d,v){ state[rkey(w,d)]=v; save(); }
+function getRst(id){ return state['res_'+id]||'none'; }
+function setRst(id,v){ state['res_'+id]=v; save(); }
+function cycleRes(id){ var c=getRst(id); setRst(id,c==='none'?'active':c==='active'?'done':'none'); render(); }
+
+function getTasksForDay(d){
+  if(d===6) return SUNDAY_TASKS;
+  var base=SYSTEMS.flatMap(function(s){ return s.tasks; });
+  return MOCK_DAYS.includes(d)?[...base,...MOCK_TASKS]:base;
 }
-function countDone(w,d){ return getTasksForDay(d).filter(t=>getChecked(w,d,t.id)).length; }
-function totalTasks(w){
+function countDone(w,d){ return getTasksForDay(d).filter(function(t){ return getT(w,d,t.id); }).length; }
+function weekStats(w){
   var total=0,done=0;
-  for(var d=0;d<7;d++){ var ts=getTasksForDay(d); total+=ts.length; done+=ts.filter(t=>getChecked(w,d,t.id)).length; }
-  return {total,done};
+  for(var d=0;d<7;d++){ var ts=getTasksForDay(d); total+=ts.length; done+=ts.filter(function(t){ return getT(w,d,t.id); }).length; }
+  return {total:total,done:done};
 }
 function calcStreak(){
   var s=0;
   for(var d=currentDay;d>=0;d--){ if(countDone(currentWeek,d)>0) s++; else break; }
   return s;
 }
+function activeResCount(){ return RESOURCES.filter(function(r){ return getRst(r.id)==='active'; }).length; }
+
+function makeStars(){
+  var bg=document.getElementById('starsBg');
+  var h='';
+  [[0.7,50],[1.2,25],[1.8,10]].forEach(function(p){
+    for(var i=0;i<p[1];i++){
+      var x=(Math.random()*100).toFixed(1),y=(Math.random()*100).toFixed(1),op=(0.15+Math.random()*0.35).toFixed(2);
+      h+='<div class="star" style="width:'+p[0]+'px;height:'+p[0]+'px;left:'+x+'%;top:'+y+'%;opacity:'+op+'"></div>';
+    }
+  });
+  bg.innerHTML=h;
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('tabTracker').style.display=tab==='tracker'?'block':'none';
+  document.getElementById('tabLibrary').style.display=tab==='library'?'block':'none';
+  document.getElementById('navTracker').className='nav-btn'+(tab==='tracker'?' active':'');
+  document.getElementById('navLibrary').className='nav-btn'+(tab==='library'?' active':'');
+  render();
+}
 
 function renderMetrics(){
-  var {total,done}=totalTasks(currentWeek);
-  document.getElementById('metTasksDone').textContent=done+'/'+total;
-  document.getElementById('metStreak').textContent=calcStreak();
-  document.getElementById('metOverall').textContent=total>0?Math.round(done/total*100)+'%':'0%';
+  var td=getTasksForDay(currentDay);
+  var todDone=td.filter(function(t){ return getT(currentWeek,currentDay,t.id); }).length;
+  var ws=weekStats(currentWeek);
+  document.getElementById('mToday').textContent=todDone+'/'+td.length;
+  document.getElementById('mWeek').textContent=ws.total>0?Math.round(ws.done/ws.total*100)+'%':'0%';
+  document.getElementById('mStreak').textContent=calcStreak();
+  document.getElementById('mRes').textContent=activeResCount()+' active';
   document.getElementById('weekLabel').textContent='Week '+currentWeek;
 }
 
 function renderStreak(){
   var streak=calcStreak();
-  var row=document.getElementById('streakRow');
-  var dots=DAYS.map(function(d,i){
+  var h=DAYS.map(function(d,i){
     var done=countDone(currentWeek,i);
     var total=getTasksForDay(i).length;
-    var full=done===total&&done>0;
-    var partial=done>0&&!full;
-    var isMock=MOCK_DAYS.includes(i);
-    var bg='transparent',tc='#475569',bc='rgba(255,255,255,0.12)';
-    if(full){ bg='#0f6e56'; bc='#1d9e75'; tc='#a7f3d0'; }
-    else if(partial){ bg='rgba(255,255,255,0.07)'; tc='#94a3b8'; }
-    else if(isMock){ bc='rgba(234,88,12,0.4)'; tc='#fb923c'; }
+    var full=done===total&&done>0, partial=done>0&&!full, isMock=MOCK_DAYS.includes(i);
+    var bg='transparent',tc='#334155',bc='rgba(255,255,255,0.1)';
+    if(full){bg='#0f6e56';bc='#1d9e75';tc='#a7f3d0';}
+    else if(partial){bg='rgba(255,255,255,0.06)';tc='#64748b';}
+    else if(isMock){bc='rgba(234,88,12,0.35)';tc='#fb923c';}
     var ring=i===currentDay?'box-shadow:0 0 0 2px #60a5fa;':'';
     return '<div class="streak-dot" style="background:'+bg+';border-color:'+bc+';color:'+tc+';'+ring+'" onclick="selectDay('+i+')">'+d[0]+'</div>';
   }).join('');
-  row.innerHTML=dots+'<span class="streak-label">'+(streak>0?streak+'-day streak':'Start your streak!')+'</span>';
+  document.getElementById('streakRow').innerHTML=h+'<span class="streak-label">'+(streak>0?streak+'-day streak':'Start your streak!')+'</span>';
 }
 
 function renderDayTabs(){
-  var el=document.getElementById('dayTabs');
-  el.innerHTML=DAYS.map(function(d,i){
-    var isMock=MOCK_DAYS.includes(i);
-    var isActive=i===currentDay;
+  document.getElementById('dayTabs').innerHTML=DAYS.map(function(d,i){
+    var isMock=MOCK_DAYS.includes(i),isActive=i===currentDay;
     var cls='day-tab'+(isActive?' active':'')+(isMock?' mock-day':'');
     return '<button class="'+cls+'" onclick="selectDay('+i+')">'+d+(isMock?' *':'')+'</button>';
   }).join('');
 }
 
-function taskHTML(t,checked,color){
-  var opt=t.optional?'<span class="task-optional">optional</span>':'';
-  return '<div class="task-row" data-task="'+t.id+'">'
-    +'<div class="task-check'+(checked?' done':'')+'" style="'+(checked?'background:'+color+';':'')+'">'
-    +'<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5.5 4,8 8.5,2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+function chkHTML(t,checked,color){
+  var opt=t.optional?'<span style="font-size:10px;color:#334155;margin-left:3px;">opt</span>':'';
+  return '<div class="task-row" data-tid="'+t.id+'">'
+    +'<div class="task-check'+(checked?' done':'')+'" style="'+(checked?'background:'+color+';border-color:'+color+';':'')+'">'
+    +'<svg width="9" height="9" viewBox="0 0 9 9" fill="none"><polyline points="1.5,4.5 3.5,7 7.5,1.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     +'</div>'
     +'<span class="task-text'+(checked?' done':'')+'">'+t.label+opt+'</span>'
     +'</div>';
 }
 
 function renderSystems(){
-  var container=document.getElementById('systemsContainer');
+  var c=document.getElementById('systemsContainer');
   if(currentDay===6){
-    var color='#fbbf24';
-    var done=SUNDAY_TASKS.filter(t=>getChecked(currentWeek,6,t.id)).length;
-    var pct=Math.round(done/SUNDAY_TASKS.length*100);
-    container.innerHTML='<div class="sys-card"><div class="sys-header"><span class="sys-title">Sunday — Strategy Day</span><span class="sys-pct" style="color:'+color+'">'+pct+'%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:'+pct+'%;background:'+color+';"></div></div><div class="tasks">'+SUNDAY_TASKS.map(t=>taskHTML(t,getChecked(currentWeek,6,t.id),color)).join('')+'</div></div>';
-    attachListeners(SUNDAY_TASKS);
-    return;
+    var col='#fbbf24',done=SUNDAY_TASKS.filter(function(t){return getT(currentWeek,6,t.id);}).length,pct=Math.round(done/SUNDAY_TASKS.length*100);
+    c.innerHTML='<div class="sys-card"><div class="sys-header"><span class="sys-title">Sunday — Strategy Day</span><span class="sys-pct" style="color:'+col+'">'+pct+'%</span></div><div class="prog-bg"><div class="prog-fill" style="width:'+pct+'%;background:'+col+';"></div></div><div class="tasks">'+SUNDAY_TASKS.map(function(t){return chkHTML(t,getT(currentWeek,6,t.id),col);}).join('')+'</div></div>';
+    attachT(SUNDAY_TASKS,null);return;
   }
   var isMock=MOCK_DAYS.includes(currentDay);
-  var html=SYSTEMS.map(function(sys){
-    var done=sys.tasks.filter(t=>getChecked(currentWeek,currentDay,t.id)).length;
+  var h=SYSTEMS.map(function(sys){
+    var done=sys.tasks.filter(function(t){return getT(currentWeek,currentDay,t.id);}).length;
     var pct=Math.round(done/sys.tasks.length*100);
-    return '<div class="sys-card"><div class="sys-header"><span class="sys-title">'+sys.label+'</span><span class="sys-pct" style="color:'+sys.color+'">'+pct+'%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:'+pct+'%;background:'+sys.color+';"></div></div><div class="tasks">'+sys.tasks.map(t=>taskHTML(t,getChecked(currentWeek,currentDay,t.id),sys.color)).join('')+'</div></div>';
+    var activeRes=RESOURCES.filter(function(r){return sys.resSubjects.includes(r.subject)&&getRst(r.id)==='active';});
+    var resBtn=activeRes.length>0?'<span class="res-link" onclick="event.stopPropagation();showResFor(\''+sys.id+'\')">'+activeRes.length+' active resource'+(activeRes.length>1?'s':'')+'</span>':'<span class="res-link" onclick="event.stopPropagation();switchTab(\'library\')">browse resources</span>';
+    return '<div class="sys-card"><div class="sys-header"><span class="sys-title">'+sys.label+'</span><div style="display:flex;align-items:center;gap:6px;">'+resBtn+'<span class="sys-pct" style="color:'+sys.color+'">'+pct+'%</span></div></div><div class="prog-bg"><div class="prog-fill" style="width:'+pct+'%;background:'+sys.color+';"></div></div><div class="tasks">'+sys.tasks.map(function(t){return chkHTML(t,getT(currentWeek,currentDay,t.id),sys.color);}).join('')+'</div></div>';
   }).join('');
   if(isMock){
-    var mc='#fb923c';
-    var md=MOCK_TASKS.filter(t=>getChecked(currentWeek,currentDay,t.id)).length;
-    var mp=Math.round(md/MOCK_TASKS.length*100);
-    html+='<div class="sys-card mock-card"><div class="sys-header"><span class="sys-title">IELTS Mock Test Day</span><span class="sys-pct" style="color:'+mc+'">'+mp+'%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:'+mp+'%;background:'+mc+';"></div></div><div class="tasks">'+MOCK_TASKS.map(t=>taskHTML(t,getChecked(currentWeek,currentDay,t.id),mc)).join('')+'</div></div>';
+    var mc='#fb923c',md=MOCK_TASKS.filter(function(t){return getT(currentWeek,currentDay,t.id);}).length,mp=Math.round(md/MOCK_TASKS.length*100);
+    h+='<div class="sys-card mock-card"><div class="sys-header"><span class="sys-title">IELTS Mock Test Day</span><span class="sys-pct" style="color:'+mc+'">'+mp+'%</span></div><div class="prog-bg"><div class="prog-fill" style="width:'+mp+'%;background:'+mc+';"></div></div><div class="tasks">'+MOCK_TASKS.map(function(t){return chkHTML(t,getT(currentWeek,currentDay,t.id),mc);}).join('')+'</div></div>';
   }
-  container.innerHTML=html;
-  var allTasks=isMock?[...SYSTEMS.flatMap(s=>s.tasks),...MOCK_TASKS]:SYSTEMS.flatMap(s=>s.tasks);
-  attachListeners(allTasks);
+  c.innerHTML=h;
+  var all=isMock?[...SYSTEMS.flatMap(function(s){return s.tasks;}),...MOCK_TASKS]:SYSTEMS.flatMap(function(s){return s.tasks;});
+  attachT(all,null);
 }
 
-function attachListeners(tasks){
+function attachT(tasks){
   tasks.forEach(function(t){
-    var row=document.querySelector('.task-row[data-task="'+t.id+'"]');
-    if(!row) return;
-    row.onclick=function(){ setChecked(currentWeek,currentDay,t.id,!getChecked(currentWeek,currentDay,t.id)); renderAll(); };
+    var row=document.querySelector('.task-row[data-tid="'+t.id+'"]');
+    if(!row)return;
+    row.onclick=function(){setT(currentWeek,currentDay,t.id,!getT(currentWeek,currentDay,t.id));render();};
   });
 }
 
-function renderReflect(){
-  document.getElementById('reflectArea').value=getReflect(currentWeek,currentDay);
+function showResFor(sysId){
+  var sys=SYSTEMS.find(function(s){return s.id===sysId;});
+  if(!sys)return;
+  currentFilter=sys.resSubjects[0];
+  switchTab('library');
 }
 
-function renderAll(){ renderMetrics(); renderStreak(); renderDayTabs(); renderSystems(); renderReflect(); }
-function selectDay(d){ currentDay=d; renderAll(); }
-function changeWeek(dir){ currentWeek=Math.max(1,currentWeek+dir); renderAll(); }
-function saveReflection(){
-  setReflect(currentWeek,currentDay,document.getElementById('reflectArea').value);
-  var btn=document.querySelector('.save-btn');
-  btn.textContent='Saved!'; setTimeout(function(){ btn.textContent='Save note'; },1500);
+function renderFilters(){
+  var filters=[{id:'all',label:'All'}].concat(SUBJECTS.map(function(s){return {id:s.id,label:s.label};}));
+  document.getElementById('filterRow').innerHTML=filters.map(function(f){
+    var active=currentFilter===f.id;
+    var subj=SUBJECTS.find(function(s){return s.id===f.id;});
+    var style=active&&subj?'background:'+subj.dot+';border-color:'+subj.dot+';color:#0a0e1a;':(active?'background:rgba(255,255,255,0.12);color:#e2e8f0;border-color:rgba(255,255,255,0.25);':'');
+    return '<button class="filter-btn'+(active?' active':'')+'" style="'+style+'" onclick="setFilter(\''+f.id+'\')">'+f.label+'</button>';
+  }).join('');
 }
 
-function makeStars(){
-  var bg=document.getElementById('starsBg');
-  var sizes=[[0.8,60],[1.2,30],[1.8,12]];
-  var html='';
-  sizes.forEach(function(pair){
-    var size=pair[0], count=pair[1];
-    for(var i=0;i<count;i++){
-      var x=Math.random()*100, y=Math.random()*100;
-      var op=(0.3+Math.random()*0.5).toFixed(2);
-      html+='<div class="star" style="width:'+size+'px;height:'+size+'px;left:'+x+'%;top:'+y+'%;opacity:'+op+';"></div>';
-    }
+function typeIcon(type){
+  if(type==='book') return '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="8" height="11" rx="1.5" stroke="#60a5fa" stroke-width="1.1"/><line x1="4" y1="4.5" x2="8" y2="4.5" stroke="#60a5fa" stroke-width="0.9"/><line x1="4" y1="6.5" x2="8" y2="6.5" stroke="#60a5fa" stroke-width="0.9"/><line x1="4" y1="8.5" x2="6.5" y2="8.5" stroke="#60a5fa" stroke-width="0.9"/></svg>';
+  if(type==='video') return '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="8" rx="1.5" stroke="#a78bfa" stroke-width="1.1"/><polygon points="9,7 13,4.5 13,9.5" fill="#a78bfa"/></svg>';
+  return '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="2" stroke="#34d399" stroke-width="1.1"/><circle cx="7" cy="10" r="1" fill="#34d399"/></svg>';
+}
+
+function renderLibrary(){
+  var subjects=currentFilter==='all'?SUBJECTS:SUBJECTS.filter(function(s){return s.id===currentFilter;});
+  var h='';
+  subjects.forEach(function(subj){
+    var res=RESOURCES.filter(function(r){return r.subject===subj.id;});
+    if(!res.length)return;
+    var act=res.filter(function(r){return getRst(r.id)==='active';}).length;
+    var dn=res.filter(function(r){return getRst(r.id)==='done';}).length;
+    h+='<div class="subj-section"><div class="subj-header"><div class="subj-dot" style="background:'+subj.dot+'"></div><span class="subj-label">'+subj.label+'</span><span class="subj-count">'+act+' active · '+dn+'/'+res.length+' done</span></div>';
+    res.forEach(function(r){
+      var st=getRst(r.id);
+      var iconBg=r.type==='book'?'rgba(96,165,250,0.1)':r.type==='video'?'rgba(167,139,250,0.1)':'rgba(52,211,153,0.1)';
+      var bdg=r.type==='book'?'badge-book':r.type==='video'?'badge-video':'badge-app';
+      var btnLbl=st==='active'?'active':st==='done'?'done':'set active';
+      var btnCls='status-btn'+(st==='active'?' is-active':st==='done'?' is-done':'');
+      var linkedSys=SYSTEMS.find(function(s){return s.resSubjects.includes(r.subject);});
+      var linkedTag=linkedSys?'<span class="linked-badge" style="border-left:2px solid '+linkedSys.color+';">'+linkedSys.id+'</span>':'';
+      h+='<div class="res-card'+(st==='active'?' active-res':st==='done'?' done-res':'')+'" onclick="cycleRes(\''+r.id+'\')">';
+      h+='<div class="res-icon" style="background:'+iconBg+'">'+typeIcon(r.type)+'</div>';
+      h+='<div style="flex:1;min-width:0;"><div class="res-name">'+(r.priority?'<span class="pstar">★ </span>':'')+r.name+'</div><div class="res-note">'+r.note+'</div></div>';
+      h+='<div class="res-right">'+linkedTag+'<span class="badge '+bdg+'">'+r.type+'</span><button class="'+btnCls+'">'+btnLbl+'</button></div>';
+      h+='</div>';
+    });
+    h+='</div>';
   });
-  bg.innerHTML=html;
+  document.getElementById('libraryContent').innerHTML=h||'<div style="font-size:13px;color:#334155;text-align:center;padding:2rem 0;">No resources found.</div>';
 }
 
-load();
-makeStars();
-var today=new Date().getDay();
-currentDay=today===0?6:today-1;
-renderAll();
+function renderReflect(){ document.getElementById('reflectArea').value=getRef(currentWeek,currentDay); }
+function saveReflect(){ setRef(currentWeek,currentDay,document.getElementById('reflectArea').value); var b=document.querySelector('.save-btn'); b.textContent='Saved!'; setTimeout(function(){b.textContent='Save note';},1500); }
+function selectDay(d){ currentDay=d; render(); }
+function changeWeek(dir){ currentWeek=Math.max(1,currentWeek+dir); render(); }
+function setFilter(f){ currentFilter=f; renderFilters(); renderLibrary(); }
+
+function render(){
+  renderMetrics();
+  if(currentTab==='tracker'){ renderStreak(); renderDayTabs(); renderSystems(); renderReflect(); }
+  else { renderFilters(); renderLibrary(); }
+}
+
+load(); makeStars();
+var today=new Date().getDay(); currentDay=today===0?6:today-1;
+render();
 </script>
